@@ -1,46 +1,41 @@
-package steps.folder;
-
+package steps.file;
 
 import config.Const;
 import io.restassured.http.ContentType;
 
 import static io.restassured.RestAssured.given;
 
-public class Folder {
-
-    public static void createFolder(String name) {
+public class File {
+    public static void addFileToFolder(String fileName, String folderName) {
         given()
                 .header("Authorization", Const.YANDEX_DISK_API_KEY)
                 .baseUri(Const.BASE_URI)
                 .when()
                 .contentType(ContentType.JSON)
-                .put("/v1/disk/resources?path=disk:/" + name)
+                .post("/v1/disk/resources/upload?path=" + folderName + "/" + fileName + "&url=" + Const.RANDOM_IMG)
                 .then()
-                .statusCode(201)
-                //.extract().body().as(CreateFolder.class);
-                .extract().response().jsonPath().get("href");
+                .statusCode(202);
     }
 
-    public static void deleteFolder(String folderName) {
-        given()
+    public static void deleteFile(String folderName, String fileName) {
+         given()
                 .header("Authorization", Const.YANDEX_DISK_API_KEY)
                 .baseUri(Const.BASE_URI)
                 .when()
                 .contentType(ContentType.JSON)
-                .delete("/v1/disk/resources?path=disk:/" + folderName)
-                .then()
+                .delete("/v1/disk/resources?path=disk:/" + folderName + "/" + fileName)
+                .then().log().all()
                 .statusCode(204);
     }
 
-    public static int getFolderStatusCode(String folderName) {
+    public static int getFileStatusCode(String folderName,String fileName) {
         return given()
                 .header("Authorization", Const.YANDEX_DISK_API_KEY)
                 .baseUri(Const.BASE_URI)
                 .when()
                 .contentType(ContentType.JSON)
-                .get("/v1/disk/resources?path=disk:/" + folderName)
+                .get("/v1/disk/resources?path=disk:/" + folderName + "/" + fileName)
                 .then()
                 .extract().statusCode();
     }
-
 }
